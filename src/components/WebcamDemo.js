@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import Webcam from "react-webcam";
 import React, { useState } from "react";
-import { CameraOptions, useFaceDetection } from "react-use-face-detection";
+import { useFaceDetection } from "react-use-face-detection";
 import FaceDetection from "@mediapipe/face_detection";
 import { Camera } from "@mediapipe/camera_utils";
 
@@ -13,22 +13,21 @@ const videoConstraints = {
 
 const WebcamDemo = () => {
   const [picture, setPicture] = useState("");
-  const { webcamRef, boundingBox, isLoading, detected, facesDetected } =
-    useFaceDetection({
-      faceDetectionOptions: {
-        model: "short",
-      },
-      faceDetection: new FaceDetection.FaceDetection({
-        locateFile: (file) =>
-          `https://cdn.jsdelivr.net/npm/@mediapipe/face_detection/${file}`,
+  const { webcamRef, detected } = useFaceDetection({
+    faceDetectionOptions: {
+      model: "short",
+    },
+    faceDetection: new FaceDetection.FaceDetection({
+      locateFile: (file) =>
+        `https://cdn.jsdelivr.net/npm/@mediapipe/face_detection/${file}`,
+    }),
+    camera: ({ mediaSrc, onFrame, width, height }) =>
+      new Camera(mediaSrc, {
+        onFrame,
+        width,
+        height,
       }),
-      camera: ({ mediaSrc, onFrame, width, height }) =>
-        new Camera(mediaSrc, {
-          onFrame,
-          width,
-          height,
-        }),
-    });
+  });
 
   const capture = () => {
     const pictureSrc =
@@ -55,7 +54,7 @@ const WebcamDemo = () => {
             }}
           />
         ))} */}
-        {picture == "" ? (
+        {picture === "" ? (
           // <Webcam
           //   ref={webcamRef}
           //   forceScreenshotSourceSize
@@ -74,11 +73,12 @@ const WebcamDemo = () => {
             videoConstraints={videoConstraints}
           />
         ) : (
+          // eslint-disable-next-line jsx-a11y/alt-text
           <img src={picture} height={400} width={400} />
         )}
         {detected && (
           <div>
-            {picture != "" ? (
+            {picture !== "" ? (
               <button
                 onClick={(e) => {
                   e.preventDefault();
